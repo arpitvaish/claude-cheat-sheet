@@ -1,280 +1,130 @@
-# 🔮 Get Your Kundali (Birth Chart) Using Claude API
+# 🔮 Get Your Kundali Reading Using Claude (No Libraries Needed)
 
 > **You:** "Can Claude read my kundali?"
-> **Claude:** "Give me your birth details and watch me go 🪐"
+> **Claude:** "Give me your birth details. I got this. 🪐"
 
-Vedic astrology. Planetary positions. Doshas. Dashas. Sounds complex — and it is.
+Vedic astrology. Planetary positions. Doshas. Dashas. Sounds like you need a special app or a pandit on speed dial.
 
-But here's the thing: once you have the raw birth chart data, **Claude is surprisingly good at interpreting it**. This guide shows you how to build a script that calculates planetary positions from birth details and feeds them to Claude for a full Vedic kundali reading.
+You don't.
 
-No astrologer subscription. No sketchy websites. Just Python + Claude API.
-
----
-
-## 🧠 How This Works
-
-```
-Birth Details (date/time/place)
-         ↓
-   kerykeion (Python lib)
-         ↓
-  Planetary Positions + Houses
-         ↓
-      Claude API
-         ↓
-  Full Kundali Interpretation ✨
-```
-
-**kerykeion** is a free Python library that computes:
-- Planetary positions (Lagna, Moon, Sun, all 9 grahas)
-- House cusps (Rashi chart, Navamsa)
-- Ascendant (Lagna)
-
-**Claude** takes that raw data and interprets:
-- Personality (Lagna + Moon sign)
-- Life path, career, relationships
-- Doshas (Mangal dosha, Kaal Sarp, etc.)
-- Current Dasha/Antardasha
-- Remedies and strengths
+Claude knows Vedic astrology deeply. Just give it your birth details — it figures out the chart **and** interprets it. Two-step prompt. That's the whole thing.
 
 ---
 
-## 📋 Prerequisites
+## 🧠 How It Works
 
-```bash
-pip install kerykeion anthropic
+```
+Step 1: Claude calculates your birth chart from your details
+           ↓
+Step 2: Claude interprets the chart as a Vedic astrologer
+           ↓
+        Full kundali reading ✨
 ```
 
-You also need an **Anthropic API key** → get it at console.anthropic.com
+No libraries. No APIs. No code. Just two prompts.
 
 ---
 
-## 🚀 The Script
+## 📋 What You Need
 
-Save as `kundali.py`:
+- Your **birth date** (day, month, year)
+- Your **birth time** (as accurate as possible — even approximate helps)
+- Your **birth city**
 
-```python
-import anthropic
-from kerykeion import AstrologicalSubject, KerykeionChartSVG
-import json
+That's it.
 
-def get_birth_chart(name: str, year: int, month: int, day: int,
-                    hour: int, minute: int, city: str, nation: str) -> dict:
-    """Calculate planetary positions using kerykeion."""
-    subject = AstrologicalSubject(
-        name=name,
-        year=year,
-        month=month,
-        day=day,
-        hour=hour,
-        minute=minute,
-        city=city,
-        nation=nation,
-        zodiac_type="Sidereal",   # Vedic uses sidereal, not tropical
-        sidereal_mode="LAHIRI"    # Lahiri ayanamsa — standard in India
-    )
+> ⚠️ **Birth time matters a lot.** Even 30 minutes off can shift your Lagna (ascendant). If you don't know the exact time, use your best guess and mention it to Claude.
 
-    planets = {
-        "Sun":     {"sign": subject.sun.sign,     "degree": round(subject.sun.abs_pos, 2),     "house": subject.sun.house},
-        "Moon":    {"sign": subject.moon.sign,    "degree": round(subject.moon.abs_pos, 2),    "house": subject.moon.house},
-        "Mercury": {"sign": subject.mercury.sign, "degree": round(subject.mercury.abs_pos, 2), "house": subject.mercury.house},
-        "Venus":   {"sign": subject.venus.sign,   "degree": round(subject.venus.abs_pos, 2),   "house": subject.venus.house},
-        "Mars":    {"sign": subject.mars.sign,    "degree": round(subject.mars.abs_pos, 2),    "house": subject.mars.house},
-        "Jupiter": {"sign": subject.jupiter.sign, "degree": round(subject.jupiter.abs_pos, 2), "house": subject.jupiter.house},
-        "Saturn":  {"sign": subject.saturn.sign,  "degree": round(subject.saturn.abs_pos, 2),  "house": subject.saturn.house},
-        "Uranus":  {"sign": subject.uranus.sign,  "degree": round(subject.uranus.abs_pos, 2),  "house": subject.uranus.house},
-        "Neptune": {"sign": subject.neptune.sign, "degree": round(subject.neptune.abs_pos, 2), "house": subject.neptune.house},
-    }
+---
 
-    return {
-        "name": name,
-        "birth_details": f"{day}/{month}/{year} {hour:02d}:{minute:02d}, {city}, {nation}",
-        "ascendant": {"sign": subject.first_house.sign, "degree": round(subject.first_house.abs_pos, 2)},
-        "planets": planets,
-        "houses": {
-            f"House {i+1}": getattr(subject, f"{['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth'][i]}_house").sign
-            for i in range(12)
-        }
-    }
+## 🎯 Step 1 — Ask Claude to Calculate Your Chart
 
+Use this prompt first:
 
-def get_kundali_reading(chart: dict) -> str:
-    """Send birth chart to Claude for Vedic interpretation."""
-    client = anthropic.Anthropic()
+```
+You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), calculate the birth chart for:
 
-    prompt = f"""You are an expert Vedic astrologer with deep knowledge of Jyotish shastra.
+Name: [Your Name]
+Date of Birth: [DD/MM/YYYY]
+Time of Birth: [HH:MM, 24-hour format]
+Place of Birth: [City, Country]
 
-Analyze this birth chart and provide a comprehensive kundali reading:
+Please output the following as structured data:
+- Ascendant (Lagna): sign and degree
+- All 9 grahas (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu): sign, house, and degree
+- Which planets are exalted, debilitated, or in own sign
+- Any major yogas present (Raj Yoga, Dhana Yoga, etc.)
+- Any doshas present (Mangal Dosha, Kaal Sarp Yog, etc.)
 
-{json.dumps(chart, indent=2)}
-
-Please provide:
-
-1. **Lagna (Ascendant) Analysis** — personality, physical traits, life approach
-2. **Moon Sign (Rashi)** — emotional nature, mind, mother relationship
-3. **Sun Sign** — soul purpose, father, authority
-4. **Key Planetary Positions** — highlight any exalted, debilitated, or strongly placed planets
-5. **House Analysis** — focus on 1st, 4th, 7th, 10th (Kendra houses) and any occupied houses
-6. **Dosha Check** — Mangal Dosha, Kaal Sarp Yog, Guru Chandal Yog (if present)
-7. **Strengths & Challenges** — based on planetary dignity and aspects
-8. **Career & Purpose** — 10th house, 6th house, strong planets
-9. **Relationships** — 7th house lord and Venus placement
-10. **Remedies** — practical Vedic remedies for weak or afflicted planets
-
-Use Sanskrit terms where appropriate (Lagna, Rashi, Graha, etc.) but explain them clearly.
-Be specific to this chart — not generic astrology copy-paste."""
-
-    message = client.messages.create(
-        model="claude-opus-4-8",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    return message.content[0].text
-
-
-def main():
-    print("🔮 Kundali Generator with Claude\n")
-    print("Enter birth details:")
-
-    name   = input("Name: ")
-    day    = int(input("Day (DD): "))
-    month  = int(input("Month (MM): "))
-    year   = int(input("Year (YYYY): "))
-    hour   = int(input("Hour (24h format, e.g. 14 for 2pm): "))
-    minute = int(input("Minute: "))
-    city   = input("Birth city (e.g. Mumbai): ")
-    nation = input("Country code (e.g. IN): ")
-
-    print("\n⏳ Calculating birth chart...")
-    chart = get_birth_chart(name, year, month, day, hour, minute, city, nation)
-
-    print("\n📊 Birth Chart Summary:")
-    print(f"  Ascendant (Lagna): {chart['ascendant']['sign']} ({chart['ascendant']['degree']}°)")
-    print(f"  Moon: {chart['planets']['Moon']['sign']} in House {chart['planets']['Moon']['house']}")
-    print(f"  Sun:  {chart['planets']['Sun']['sign']} in House {chart['planets']['Sun']['house']}")
-
-    print("\n🪐 Sending to Claude for Vedic interpretation...\n")
-    reading = get_kundali_reading(chart)
-
-    print("=" * 60)
-    print(reading)
-    print("=" * 60)
-
-    # Save to file
-    output_file = f"kundali_{name.lower().replace(' ', '_')}.txt"
-    with open(output_file, "w") as f:
-        f.write(f"KUNDALI REPORT — {name}\n")
-        f.write(f"Birth: {chart['birth_details']}\n")
-        f.write("=" * 60 + "\n\n")
-        f.write(reading)
-    print(f"\n💾 Saved to {output_file}")
-
-
-if __name__ == "__main__":
-    main()
+Output this as a clean chart summary before any interpretation.
 ```
 
 ---
 
-## ▶️ Run It
+## 🔮 Step 2 — Ask Claude to Interpret It
 
-```bash
-export ANTHROPIC_API_KEY="your-key-here"
-python kundali.py
-```
-
-Sample input:
-```
-Name: Arjun Sharma
-Day: 15
-Month: 8
-Year: 1990
-Hour: 6
-Minute: 30
-Birth city: Delhi
-Country code: IN
-```
-
----
-
-## 📊 Sample Output Structure
-
-Claude will return something like:
+Once Claude gives you the chart, follow up with:
 
 ```
-1. LAGNA ANALYSIS
-   Your Gemini ascendant (Mithuna Lagna) makes you...
+Now give me a full Vedic kundali reading based on this chart. Cover:
 
-2. MOON SIGN — Scorpio (Vrishchika)
-   Moon in Scorpio in the 6th house indicates...
+1. Lagna (Ascendant) — personality, appearance, how I approach life
+2. Moon Sign (Rashi) — emotions, mind, instincts
+3. Sun Sign — soul purpose, ego, father
+4. Career & Purpose — 10th house, strongest planets
+5. Relationships & Marriage — 7th house, Venus placement
+6. Wealth & Prosperity — 2nd and 11th house
+7. Doshas — any present and what they mean practically
+8. Current Life Phase — which Mahadasha/Antardasha I'm likely in
+9. Strengths to lean into
+10. Practical remedies for weak or afflicted planets
 
-3. KEY PLANETARY POSITIONS
-   ✅ Jupiter exalted in Cancer (4th house) — exceptional...
-   ⚠️  Saturn in Aries (11th house) — delayed but...
-
-4. MANGAL DOSHA
-   Mars in 7th house confirms Mangal Dosha. Remedy...
-
-...and so on for all 10 sections
+Be specific to my chart. Use Sanskrit terms but explain them simply.
 ```
 
 ---
 
-## ⚡ Bonus: Ask Follow-up Questions
+## 💬 Then Just Ask Anything
 
-Want to dig deeper? Extend the script with a chat loop:
+After the reading, Claude remembers your chart in the same conversation. Ask freely:
 
-```python
-def kundali_chat(chart: dict):
-    """Interactive kundali Q&A with Claude."""
-    client = anthropic.Anthropic()
-    messages = []
+- *"Is this a good year for me to change jobs?"*
+- *"What does my 8th house tell you about transformation in my life?"*
+- *"Which gemstone suits me and why?"*
+- *"When is a good time window for marriage based on my dashas?"*
+- *"Why do I always struggle with [X]? What in my chart explains it?"*
 
-    # Prime Claude with the chart
-    system = f"""You are an expert Vedic astrologer. The user's birth chart is:
-{json.dumps(chart, indent=2)}
-Answer all questions strictly based on Vedic Jyotish principles using this chart."""
-
-    print("\n💬 Ask Claude anything about your kundali (type 'quit' to exit)\n")
-
-    while True:
-        question = input("You: ").strip()
-        if question.lower() in ("quit", "exit", "q"):
-            break
-
-        messages.append({"role": "user", "content": question})
-
-        response = client.messages.create(
-            model="claude-sonnet-4-6",   # Sonnet is fine for follow-ups (cheaper)
-            max_tokens=1024,
-            system=system,
-            messages=messages
-        )
-
-        answer = response.content[0].text
-        messages.append({"role": "assistant", "content": answer})
-
-        print(f"\nClaude: {answer}\n")
-```
-
-Example questions you can ask:
-- *"When will my career peak based on current dashas?"*
-- *"Is this a good time to get married?"*
-- *"What does my 8th house say about inheritance?"*
-- *"Which gemstone should I wear?"*
+Claude will answer **from your specific chart** — not generic sun-sign astrology.
 
 ---
 
-## 🔧 Troubleshooting
+## ⚡ One-Shot Mega Prompt (If You Want Everything at Once)
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `City not found` | kerykeion needs exact city name | Try nearby major city |
-| `AttributeError: house` | Older kerykeion version | `pip install --upgrade kerykeion` |
-| `Invalid API key` | Wrong env var | Check `echo $ANTHROPIC_API_KEY` |
-| Tropical signs showing | Wrong zodiac type | Ensure `zodiac_type="Sidereal"` and `sidereal_mode="LAHIRI"` |
-| Generic reading | Prompt too vague | Use the full prompt in the script — don't shorten it |
+Don't want two steps? Combine them:
+
+```
+You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), do the following for this person:
+
+Name: [Your Name]
+Date of Birth: [DD/MM/YYYY]
+Time of Birth: [HH:MM]
+Place of Birth: [City, Country]
+
+First, calculate and show the birth chart — Lagna, all 9 grahas with signs and houses, exaltations/debilitations, yogas, and doshas.
+
+Then give a full kundali reading covering:
+1. Lagna analysis
+2. Moon sign and emotional nature
+3. Career and purpose (10th house)
+4. Relationships and marriage (7th house)
+5. Wealth indicators
+6. Doshas and their real-world effects
+7. Current Mahadasha/Antardasha and what it means for this phase of life
+8. Key strengths and challenges
+9. Practical remedies
+
+Be specific to this chart. Use Sanskrit terms with simple explanations.
+```
 
 ---
 
@@ -282,21 +132,20 @@ Example questions you can ask:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│         KUNDALI WITH CLAUDE — CHEAT SHEET        │
+│      KUNDALI WITH CLAUDE — CHEAT SHEET           │
 ├──────────────────────────────────────────────────┤
-│  Library:  kerykeion (planet positions)          │
-│  Model:    claude-opus-4-8 (full reading)        │
-│            claude-sonnet-4-6 (follow-ups)        │
-│  Zodiac:   Sidereal + Lahiri ayanamsa            │
+│  Need: Date + Time + City of birth               │
+│  Ayanamsa: Lahiri (always specify this)          │
+│  Zodiac: Sidereal (not tropical/Western)         │
 ├──────────────────────────────────────────────────┤
-│  KEY PARAMS:                                     │
-│  zodiac_type = "Sidereal"   ← must for Vedic     │
-│  sidereal_mode = "LAHIRI"   ← Indian standard    │
-│  max_tokens = 4096          ← full reading       │
+│  PROMPT ORDER:                                   │
+│  1. Ask Claude to calculate the chart            │
+│  2. Ask Claude to interpret it                   │
+│  3. Ask follow-up questions freely               │
 ├──────────────────────────────────────────────────┤
-│  ASK CLAUDE ABOUT:                               │
-│  Lagna, Moon, Doshas, Dashas                     │
-│  Career, Marriage, Remedies                      │
+│  KEY TOPICS TO ASK ABOUT:                        │
+│  Lagna, Rashi, Dashas, Doshas                    │
+│  Career, Marriage, Wealth, Remedies              │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -304,11 +153,11 @@ Example questions you can ask:
 
 ## 💬 Final Thoughts
 
-This isn't replacing your family pandit. But for a first-pass reading, exploring your chart, or understanding what all those planetary positions mean?
+Claude isn't replacing your family pandit. But for understanding your own chart, exploring what the planets say about your life, or just satisfying that 2am curiosity?
 
-Claude is genuinely impressive here. Feed it a well-structured chart with the right prompt and it gives you **specific, chart-aware interpretations** — not the copy-paste horoscope garbage you find online.
+It's genuinely good. The key is **always mentioning Lahiri ayanamsa and sidereal zodiac** — without that, Claude defaults to Western tropical astrology, which gives completely different signs and houses.
 
-The Lahiri + Sidereal combo is what makes this **actually Vedic**, not just Western astrology in disguise. That one setting change matters more than anything else in this guide.
+One line. Huge difference.
 
 ---
 
