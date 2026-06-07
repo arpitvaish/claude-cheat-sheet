@@ -1,32 +1,27 @@
 # 🔮 Get Your Kundali Reading Using Claude (No Libraries Needed)
 
 > **You:** "Can Claude read my kundali?"
-> **Claude:** "Paste your chart data and watch me go 🪐"
+> **Claude:** "Give me your birth details. I got this. 🪐"
 
 Vedic astrology. Planetary positions. Doshas. Dashas. Sounds like you need a special app or a pandit on speed dial.
 
-For interpretation? You don't. Claude is excellent at reading a kundali.
-For *calculation*? You do need a tool. Claude cannot reliably compute planetary positions from birth details — it doesn't have access to a live ephemeris, so degrees and house placements come out wrong.
+You don't. Just use **claude.ai** — it has web tools enabled, so it can look up real ephemeris data and calculate your chart accurately. Two prompts. That's the whole thing.
 
-> ⚠️ **Important:** Do NOT ask Claude to calculate your birth chart from scratch. It will give you incorrect planetary positions. Always generate the chart using a dedicated tool first, then bring it to Claude for interpretation.
-
-The workflow that actually works: **generate chart → paste to Claude → get reading.**
+> ⚠️ **Use claude.ai (not the raw API).** claude.ai has web search and tools enabled — that's what lets it calculate accurate planetary positions. Without tools, Claude has no access to live ephemeris data and the chart will be wrong.
 
 ---
 
 ## 🧠 How It Works
 
 ```
-Step 1: Generate your chart on AstroSage / Jagannatha Hora (free)
+Step 1: Claude calculates your birth chart (claude.ai with tools)
            ↓
-Step 2: Paste chart data into Claude
-           ↓
-Step 3: Claude interprets it as a Vedic astrologer
+Step 2: Claude interprets it as a Vedic astrologer
            ↓
         Full kundali reading ✨
 ```
 
-No paid apps. No astrologer subscription. Claude does the hard interpretive work — you just need the raw chart data first.
+No libraries. No apps. No code. Just two prompts on claude.ai.
 
 ---
 
@@ -42,27 +37,33 @@ That's it.
 
 ---
 
-## 🎯 Step 1 — Generate Your Chart (Takes 2 Minutes)
+## 🎯 Step 1 — Ask Claude to Calculate Your Chart
 
-Claude cannot calculate planetary positions accurately — it lacks a live ephemeris. Use one of these free tools:
+Use this prompt on **claude.ai**:
 
-| Tool | Link | Notes |
-|------|------|-------|
-| **AstroSage** | astrosage.com/free-kundli | Online, Lahiri default, easiest |
-| **Jagannatha Hora** | free desktop software | Most accurate, used by serious astrologers |
-| **AstroVed** | astroved.com | Online, good UI |
+```
+You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), calculate the birth chart for:
 
-**Settings to use:**
-- Ayanamsa: **Lahiri** (also called Chitrapaksha)
-- Chart style: **North Indian** or **South Indian** — doesn't matter, just copy the data
+Name: [Your Name]
+Date of Birth: [DD/MM/YYYY]
+Time of Birth: [HH:MM, 24-hour format]
+Place of Birth: [City, Country]
 
-Once generated, copy the planet positions (sign + house for each graha).
+Please output the following as structured data:
+- Ascendant (Lagna): sign and degree
+- All 9 grahas (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu): sign, house, and degree
+- Which planets are exalted, debilitated, or in own sign
+- Any major yogas present (Raj Yoga, Dhana Yoga, etc.)
+- Any doshas present (Mangal Dosha, Kaal Sarp Yog, etc.)
+
+Output this as a clean chart summary before any interpretation.
+```
 
 ---
 
-## 🔮 Step 2 — Paste Chart to Claude and Ask for Interpretation
+## 🔮 Step 2 — Ask Claude to Interpret It
 
-Once you have your chart data from AstroSage/Jagannatha Hora, paste it and use this prompt:
+Once Claude outputs the chart, follow up with:
 
 ```
 Now give me a full Vedic kundali reading based on this chart. Cover:
@@ -97,16 +98,21 @@ Claude will answer **from your specific chart** — not generic sun-sign astrolo
 
 ---
 
-## ⚡ One-Shot Mega Prompt (Paste Chart + Get Full Reading)
+## ⚡ One-Shot Mega Prompt (If You Want Everything at Once)
 
-Have your chart data ready from AstroSage/Jagannatha Hora? Use this single prompt:
+Don't want two steps? Combine them:
 
 ```
-You are an expert Vedic astrologer. Here is my birth chart (generated using Lahiri ayanamsa):
+You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), do the following for this person:
 
-[Paste your chart data here — Lagna, all graha positions with signs and houses]
+Name: [Your Name]
+Date of Birth: [DD/MM/YYYY]
+Time of Birth: [HH:MM]
+Place of Birth: [City, Country]
 
-Give me a full kundali reading covering:
+First, calculate and show the birth chart — Lagna, all 9 grahas with signs and houses, exaltations/debilitations, yogas, and doshas.
+
+Then give a full kundali reading covering:
 1. Lagna analysis
 2. Moon sign and emotional nature
 3. Career and purpose (10th house)
@@ -128,7 +134,7 @@ Be specific to this chart. Use Sanskrit terms with simple explanations.
 ┌──────────────────────────────────────────────────┐
 │      KUNDALI WITH CLAUDE — CHEAT SHEET           │
 ├──────────────────────────────────────────────────┤
-│  Need: Date + Time + City of birth               │
+│  Use: claude.ai (tools enabled = accurate chart) │
 │  Ayanamsa: Lahiri (always specify this)          │
 │  Zodiac: Sidereal (not tropical/Western)         │
 ├──────────────────────────────────────────────────┤
@@ -149,9 +155,12 @@ Be specific to this chart. Use Sanskrit terms with simple explanations.
 
 Claude isn't replacing your family pandit. But for understanding your own chart, exploring what the planets say about your life, or just satisfying that 2am curiosity?
 
-It's genuinely good. The key is **always mentioning Lahiri ayanamsa and sidereal zodiac** — without that, Claude defaults to Western tropical astrology, which gives completely different signs and houses.
+It's genuinely good. Two things that matter most:
 
-One line. Huge difference.
+1. **Use claude.ai** — not the raw API. The web tools are what make the chart calculation accurate.
+2. **Always say Lahiri ayanamsa + sidereal zodiac** — without that, Claude defaults to Western tropical astrology, which gives completely different signs and houses.
+
+Two lines. Huge difference.
 
 ---
 
