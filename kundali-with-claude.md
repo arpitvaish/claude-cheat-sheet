@@ -1,27 +1,32 @@
 # 🔮 Get Your Kundali Reading Using Claude (No Libraries Needed)
 
 > **You:** "Can Claude read my kundali?"
-> **Claude:** "Give me your birth details. I got this. 🪐"
+> **Claude:** "Paste your chart data and watch me go 🪐"
 
 Vedic astrology. Planetary positions. Doshas. Dashas. Sounds like you need a special app or a pandit on speed dial.
 
-You don't.
+For interpretation? You don't. Claude is excellent at reading a kundali.
+For *calculation*? You do need a tool. Claude cannot reliably compute planetary positions from birth details — it doesn't have access to a live ephemeris, so degrees and house placements come out wrong.
 
-Claude knows Vedic astrology deeply. Just give it your birth details — it figures out the chart **and** interprets it. Two-step prompt. That's the whole thing.
+> ⚠️ **Important:** Do NOT ask Claude to calculate your birth chart from scratch. It will give you incorrect planetary positions. Always generate the chart using a dedicated tool first, then bring it to Claude for interpretation.
+
+The workflow that actually works: **generate chart → paste to Claude → get reading.**
 
 ---
 
 ## 🧠 How It Works
 
 ```
-Step 1: Claude calculates your birth chart from your details
+Step 1: Generate your chart on AstroSage / Jagannatha Hora (free)
            ↓
-Step 2: Claude interprets the chart as a Vedic astrologer
+Step 2: Paste chart data into Claude
+           ↓
+Step 3: Claude interprets it as a Vedic astrologer
            ↓
         Full kundali reading ✨
 ```
 
-No libraries. No APIs. No code. Just two prompts.
+No paid apps. No astrologer subscription. Claude does the hard interpretive work — you just need the raw chart data first.
 
 ---
 
@@ -37,33 +42,27 @@ That's it.
 
 ---
 
-## 🎯 Step 1 — Ask Claude to Calculate Your Chart
+## 🎯 Step 1 — Generate Your Chart (Takes 2 Minutes)
 
-Use this prompt first:
+Claude cannot calculate planetary positions accurately — it lacks a live ephemeris. Use one of these free tools:
 
-```
-You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), calculate the birth chart for:
+| Tool | Link | Notes |
+|------|------|-------|
+| **AstroSage** | astrosage.com/free-kundli | Online, Lahiri default, easiest |
+| **Jagannatha Hora** | free desktop software | Most accurate, used by serious astrologers |
+| **AstroVed** | astroved.com | Online, good UI |
 
-Name: [Your Name]
-Date of Birth: [DD/MM/YYYY]
-Time of Birth: [HH:MM, 24-hour format]
-Place of Birth: [City, Country]
+**Settings to use:**
+- Ayanamsa: **Lahiri** (also called Chitrapaksha)
+- Chart style: **North Indian** or **South Indian** — doesn't matter, just copy the data
 
-Please output the following as structured data:
-- Ascendant (Lagna): sign and degree
-- All 9 grahas (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu): sign, house, and degree
-- Which planets are exalted, debilitated, or in own sign
-- Any major yogas present (Raj Yoga, Dhana Yoga, etc.)
-- Any doshas present (Mangal Dosha, Kaal Sarp Yog, etc.)
-
-Output this as a clean chart summary before any interpretation.
-```
+Once generated, copy the planet positions (sign + house for each graha).
 
 ---
 
-## 🔮 Step 2 — Ask Claude to Interpret It
+## 🔮 Step 2 — Paste Chart to Claude and Ask for Interpretation
 
-Once Claude gives you the chart, follow up with:
+Once you have your chart data from AstroSage/Jagannatha Hora, paste it and use this prompt:
 
 ```
 Now give me a full Vedic kundali reading based on this chart. Cover:
@@ -98,21 +97,16 @@ Claude will answer **from your specific chart** — not generic sun-sign astrolo
 
 ---
 
-## ⚡ One-Shot Mega Prompt (If You Want Everything at Once)
+## ⚡ One-Shot Mega Prompt (Paste Chart + Get Full Reading)
 
-Don't want two steps? Combine them:
+Have your chart data ready from AstroSage/Jagannatha Hora? Use this single prompt:
 
 ```
-You are an expert Vedic astrologer. Using Jyotish principles with Lahiri ayanamsa (sidereal zodiac), do the following for this person:
+You are an expert Vedic astrologer. Here is my birth chart (generated using Lahiri ayanamsa):
 
-Name: [Your Name]
-Date of Birth: [DD/MM/YYYY]
-Time of Birth: [HH:MM]
-Place of Birth: [City, Country]
+[Paste your chart data here — Lagna, all graha positions with signs and houses]
 
-First, calculate and show the birth chart — Lagna, all 9 grahas with signs and houses, exaltations/debilitations, yogas, and doshas.
-
-Then give a full kundali reading covering:
+Give me a full kundali reading covering:
 1. Lagna analysis
 2. Moon sign and emotional nature
 3. Career and purpose (10th house)
